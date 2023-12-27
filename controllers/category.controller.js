@@ -4,35 +4,20 @@
  * Everytime a CRUD request come for the category, methods defined
  * in this contoller file will be executed. 
 */
-
-
+const req  = require("express/lib/request");
 const db = require("../models");
 const Category = db.category;
 
 /**
  * POST: Create and save a new category
 */
-
-
 exports.create = (req, res) => {
 
     /**
-     * Validation of request body
+     * Creation of the category object to be stored in the db.
     */
  
-    if(!req.body.name){
-        res.status(400).send({
-           massage: "name of the category cant be empty !"
-        })
-        return;
-
-    };
-}   
-
-
-/**
- * creation of the category object to be stored in db.
- */
+    
     const category = {
         name: req.body.name,
         description: req.body.description
@@ -40,18 +25,20 @@ exports.create = (req, res) => {
 
     Category.create(category)
     .then(category => {
-        console.log(`category name: [$category.name] got inserted in the DB`)
+        console.log(`category name: [$category.name]got inserted in the DB`)
         res.status(201).send(category);
     
     })
     .catch(err => {
-        console.log(`Issue in inserting category name: [${category.name}]`)
+        console.log(`Issue in inserting category name: [${category.name}]` )
         console.log(`Error Message : ${err.message}`)
         res.status(500).send({
             message: "Some internal error while storing the category!"
         })
     })
 }
+
+
 /**
  * Get a list of all the categories
 */
@@ -66,7 +53,7 @@ exports.findAll = (req, res) => {
                 name: categoryName
             }
         });
-
+    
     }else{
         promise = Category.findAll();
     }
@@ -82,7 +69,6 @@ exports.findAll = (req, res) => {
     })
 }
 
-
 /**
  * Get a category based on the category id
 */
@@ -91,21 +77,26 @@ exports.findOne = (req, res) => {
     const categoryId = req.params.id; 
 
     Category.findByPk(categoryId)
+        
     .then(category => {
-         res.status(200).send(categoryId);
+
+        if(!category) {
+            return res.status(404).json({
+                message: 'Category not found'
+            })
+        }
+        res.status(200).send(category);
     })
     .catch(err => {
         res.status(500).send({
-            massage: "some internal error while fecthing the category"
+            message: "Some internal error while fetching the category based on id"
         })
     })
 }
 
-
 /**
- * Update the existinh category
- */
-
+ * Update the existing category
+*/
 exports.update = (req, res) => {
 
     const category = {
@@ -138,6 +129,29 @@ exports.update = (req, res) => {
         //Where the updation task failed. 
         res.status(500).send({
             message: "Some internal error while updating the category based on id"
+        })
+    })
+}
+
+/**
+ * Delete an existing category based on category id
+*/
+exports.delete = (req, res) => {
+    const categoryId = req.params.id;
+
+    Category.destroy({
+        where: {
+            id: categoryId
+        }
+    })
+    .then(result => {
+        res.status(200).send({
+            message: "Successfully deleted the category"
+        })
+    })
+    .catch(err => {
+        res.status(500).send({
+            message: "Some internal error while deleting the category based on id"
         })
     })
 }
