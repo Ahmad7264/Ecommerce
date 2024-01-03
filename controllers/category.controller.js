@@ -4,7 +4,6 @@
  * Everytime a CRUD request come for the category, methods defined
  * in this contoller file will be executed. 
 */
-const req  = require("express/lib/request");
 const db = require("../models");
 const Category = db.category;
 
@@ -25,7 +24,7 @@ exports.create = (req, res) => {
 
     Category.create(category)
     .then(category => {
-        console.log(`category name: [$category.name]got inserted in the DB`)
+        console.log(`category name: [${category.name}]got inserted in the DB`)
         res.status(201).send(category);
     
     })
